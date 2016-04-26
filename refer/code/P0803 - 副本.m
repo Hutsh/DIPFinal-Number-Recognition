@@ -1,9 +1,7 @@
 I0=imread('8.jpg');% 必须为二值图像
 I=im2bw(I0,0.4);
 [y0 x0]=size(I);
-A=(~I)'
 Range=sum((~I)');
-
 Hy=0;
 for j=1:y0
     if (Range(j)>=1)
@@ -19,9 +17,8 @@ for i=1:x0
 end
 Amp=24/Hy;             % 将文字图像归一化到24像素点的高度。
 I=imresize(I,Amp);
-
 [y x]=size(I);
-%I=bwmorph(~I,'skel',Inf);%骨架提取
+%I=bwmorph(~I,'skel',Inf);
 %I=~I;
 tic
 %====== 基本结构 =======%
@@ -38,9 +35,9 @@ for j=1:y
     if (i<=x)          
         Left(j)=i;
     end    
-end%从I左侧到第一个0的距离
+end
 for j=1:y-1
-    LeftD(j)=Left(j+1)-Left(j);%Left后一个与前一个的差
+    LeftD(j)=Left(j+1)-Left(j);
 end
 %========== 结构特征提取 =============%
 j=1;
