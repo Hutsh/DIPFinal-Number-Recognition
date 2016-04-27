@@ -92,11 +92,11 @@ for nn=1:10%第几个数
         
         if numstart >0 && sumi == m %qie
             output{nn} = ones(m,i);
-            output{nn}=numarea(1:m,i-numstart-1:i);
-            figure,imshow(output{nn});
+            output{nn}=numarea(1:m,begin:begin+i);
+            figure
             whitestart=0;
             numstart=0;
-            begin=i+1;
+            begin=i;
             break;
         end
     end
