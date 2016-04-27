@@ -24,11 +24,11 @@ bw2= imopen(~A3,se);
 figure,imshow(bw2)
 
 [B,L] = bwboundaries(bw2,4); 
-imshow(label2rgb(L, @jet, [.5 .5 .5]))
+imshow(label2rgb(L, @jet, [.5 .5 .5]))%分区域
 hold on
 for k = 1:length(B)
  boundary = B{k};
- plot(boundary(:,2),boundary(:,1),'w','LineWidth',2)
+ plot(boundary(:,2),boundary(:,1),'w','LineWidth',2)%画出边界
 end
 
 X = B(4);%B4为学号区域边界坐标
@@ -55,7 +55,6 @@ numarea = imcrop(A2, [min_x min_y max_x-min_x max_y-min_y]);%切割出学号
 figure,imshow(numarea)%学号区域
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [m n] = size(numarea);
-width = round(n/10);
 
 % numbegin=0;
 % nn=1%第几个数
@@ -77,10 +76,11 @@ width = round(n/10);
 % end
 %%%%%%%%%%
 
-output = cell(10,1);
+output = cell(10,1);%建立输出结构体
 begin=1;
-whitestart=0;
-numstart=0;
+whitestart=0;%每列全白色计数
+numstart=0;%有信息的列计数
+figure
 for nn=1:10%第几个数
     for i = begin:n %
         sumi = sum(numarea(:,i));
@@ -90,13 +90,18 @@ for nn=1:10%第几个数
             numstart = numstart+1;
         end
         
-        if numstart >0 && sumi == m %qie
+        if numstart >0 && sumi == m %数字右边界
             output{nn} = ones(m,i);
-            output{nn}=numarea(1:m,begin:begin+i);
-            figure
+            output{nn}=numarea(1:m,i-numstart-1:i);
+            subplot(2,5,nn);
+            imshow(output{nn});
+            hold on;
+            %figure,imshow(output{nn});
+            filename=['numoutput\',num2str(nn),'.jpg'];
+            imwrite(output{nn},filename);
             whitestart=0;
             numstart=0;
-            begin=i;
+            begin=i+1;
             break;
         end
     end
