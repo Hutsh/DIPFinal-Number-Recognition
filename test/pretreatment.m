@@ -1,5 +1,5 @@
 clear all;close all
-I = imread('card3.jpg');
+I = imread('card6.jpg');
 I1=rgb2gray(I);      %灰度处理，自动取值二值化
 level=graythresh(I1);
 I2=im2bw(I1,0.32);
@@ -19,7 +19,7 @@ se2 = strel('square',3);%链接断开部分
 A3= imdilate(bw,se2);
 figure,imshow(~A3)
 
-se = strel('rectangle',[10 23]);  %进行开运算，使图像形成几个连通域 10*20元横向
+se = strel('rectangle',[10 20]);  %进行开运算，使图像形成几个连通域 10*20元横向
 bw2= imopen(~A3,se);
 figure,imshow(bw2)
 
@@ -27,8 +27,8 @@ figure,imshow(bw2)
 imshow(label2rgb(L, @jet, [.5 .5 .5]))%分区域
 hold on
 for k = 1:length(B)
- boundary = B{k};
- plot(boundary(:,2),boundary(:,1),'w','LineWidth',2)%画出边界
+    boundary = B{k};
+    plot(boundary(:,2),boundary(:,1),'w','LineWidth',2)%画出边界
 end
 
 X = B(4);%B4为学号区域边界坐标
@@ -51,7 +51,7 @@ for i = min_x:max_x
         ttt(j,i)=0;
     end
 end
-numarea = imcrop(A2, [min_x min_y max_x-min_x max_y-min_y]);%切割出学号
+numarea = imcrop(A2, [min_x-2 min_y max_x-min_x+4 max_y-min_y]);%切割出学号
 figure,imshow(numarea)%学号区域
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [m n] = size(numarea);
@@ -81,6 +81,7 @@ begin=1;
 whitestart=0;%每列全白色计数
 numstart=0;%有信息的列计数
 figure
+singlese = strel('disk',1);%腐蚀结果
 for nn=1:10%第几个数
     for i = begin:n %
         sumi = sum(numarea(:,i));
@@ -92,12 +93,16 @@ for nn=1:10%第几个数
         
         if numstart >0 && sumi == m %数字右边界
             output{nn} = ones(m,i);
-            output{nn}=numarea(1:m,i-numstart-1:i);
+            siglenum = ones(m,i);
+            singlenum=numarea(1:m,i-numstart-1:i);
+            singlenum=imopen(singlenum,singlese);
+            output{nn}= singlenum%腐蚀单个数字
             subplot(2,5,nn);
             imshow(output{nn});
             %figure,imshow(output{nn});
-            filename=['numoutput\',num2str(nn),'.jpg'];
-            imwrite(output{nn},filename);%输出
+            filename=['numoutput\',num2str(nn),'.bmp'];
+            %imwrite(output{nn},filename);%输出
+            imwrite(output{nn}, filename, 'bmp');
             whitestart=0;
             numstart=0;
             begin=i+1;
