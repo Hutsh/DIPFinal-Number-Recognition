@@ -44,7 +44,7 @@ for j=1:y-1
 end
 %========== ½á¹¹ÌØÕ÷ÌáÈ¡ =============%
 j=1;
-while ((Left(j)<1)&&(j<y))
+while ( (Left(j)<1) && (j<y) )
        j=j+1;       
 end 
 Y1=j;
@@ -57,7 +57,7 @@ Y2=j-1;      % È¥µô¼±¾ç±ä»¯µÄÁ½¶Ë
 
        
 %============== ÓÒ±ß ==================%
-Right=zeros(1,y);         % ×ó¶ËÂÖÀª¼ì²â
+Right=zeros(1,y);         % ÓÒ¶ËÂÖÀª¼ì²â
 for j=1:y
         i=x;
     while ((i>=1)&&(I(j,i)==1))
@@ -160,21 +160,21 @@ t=toc
 px=(1:x);
 py=(1:y);
 
-figure(1);
-imshow(I);
+% figure(1);
+% imshow(I);
 
-figure(2);
-plot(Left);grid
-title('×óÂÖÀª');
+% figure(2);
+% plot(Left);grid
+% title('×óÂÖÀª');
 
-figure(3);
-plot(Top);grid
-title('ÉÏÂÖÀª');
+% figure(3);
+% plot(Top);grid
+% title('ÉÏÂÖÀª');
 
-figure(4);
-plot(Right);grid
-title('ÓÒÂÖÀª');
+% figure(4);
+% plot(Right);grid
+% title('ÓÒÂÖÀª');
 
-figure(5);
-plot(Width);grid
-title('¿í¶È');
+% figure(5);
+% plot(Width);grid
+% title('¿í¶È');
