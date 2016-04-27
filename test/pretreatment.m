@@ -94,6 +94,8 @@ for nn=1:10%第几个数
             output{nn} = ones(m,i);
             output{nn}=numarea(1:m,i-numstart-1:i);
             figure,imshow(output{nn});
+            filename=['numoutput\',num2str(nn),'.jpg'];
+            imwrite(output{nn},filename);
             whitestart=0;
             numstart=0;
             begin=i+1;
