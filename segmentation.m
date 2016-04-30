@@ -1,122 +1,71 @@
 clear all;close all
-I = imread('card3.jpg');
-I1=rgb2gray(I);      %灰度处理，自动取值二值化
-level=graythresh(I1);
-I2=im2bw(I1,0.32);
-I3=~I2;
-%I4=bwareaopen(I3,30); %降噪处理
-% I4=medfilt2(I3,[7,7]);  %7*7中值滤波
-% imshow(I3);
-[y x]=size(I3);
-%A2=imcrop(I2,[x/5 y*3/7 3*x/10 y/6]);
-A2=imcrop(I2,[x/10 y*3/7 x/2 y/5]);
-% A2=I2;
-figure,imshow(A2);
-% se = strel('line',15);  %进行开运算，使图像形成几个连通域
-se = strel('line', 3, 90);
-bw= imopen(~A2,se);%去除横线
-% figure,imshow(bw)
-se2 = strel('square',10);%链接断开部分
-A3= imdilate(bw,se2);
-figure,imshow(~A3)
+I = imread('card\card2r.jpg');%原图
+I = rgb2gray(I);
+figure,imshow(I)
+I2 = imadjust(I, [0 0.8], [0 1]); 
+BW = im2bw(I2);
+BW2= imfill(BW,'holes');
+BW2=medfilt2(BW2,[20,20]);
+figure,imshow(BW2)
+% binaryImage = edge(BW2,'canny'); % 'Canny' edge detector
+% binaryImage = bwmorph(binaryImage,'thicken'); % A morphological operation for edge linking
+% figure,imshow(binaryImage)
 
-
-se = strel('rectangle',[5 10]);  %进行开运算，使图像形成几个连通域 10*20元横向
-bw2= imopen(~A3,se);
-figure,imshow(bw2)
-
-[B,L] = bwboundaries(bw2,'noholes'); 
-imshow(label2rgb(L, @jet, [.5 .5 .5]))%分区域
-hold on
-for k = 1:length(B)
-    boundary = B{k};
-    plot(boundary(:,2),boundary(:,1),'w','LineWidth',2)%画出边界
-end
-
-X = B(4);%B4为学号区域边界坐标
-numarea=A2;
-% [n m] = size(X{1,1});
-% for i = 1:n
-%     xx=X{1,1}(i,2);
-%     yy=X{1,1}(i,1);
-%     area(yy,xx)=0;%圈出学号
-% end
-% figure,imshow(area)
-min_x = min(X{1,1}(:,2));max_x =max(X{1,1}(:,2));
-min_y = min(X{1,1}(:,1));max_y =max(X{1,1}(:,1));
-lt = [min_x min_y]%学号左上坐标
-rb = [max_x max_y]%学号右下坐标
-
-ttt=A2;
-for i = min_x:max_x
-    for j = min_y:max_y
-        ttt(j,i)=0;
-    end
-end
-numarea = imcrop(A2, [min_x-2 min_y max_x-min_x+4 max_y-min_y]);%切割出学号
-figure,imshow(numarea)%学号区域
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[m n] = size(numarea);
-
-% numbegin=0;
-% nn=1%第几个数
-% for i = 1:n %1->宽度
-% %   for j = 1:m%1->底
-%     sumi = sum(numarea(:,i));
-%     if sumi == m %全白
-%     else
-%         numbegin = numbegin+1;
-%     end
-%     
-%     if (numbegin > 0)&&(sumi == m)%单个数字结束
-%         number = numarea()
-%         output{nn}=ones(i,j);
-%         
-%     end
-%     
-%     
-% end
-%%%%%%%%%%
-
-output = cell(10,1);%建立输出结构体
-begin=1;
-whitestart=0;%每列全白色计数
-numstart=0;%有信息的列计数
-figure
-singlese = strel('disk',1);%腐蚀结果
-for nn=1:10%第几个数
-    for i = begin:n %
-        sumi = sum(numarea(:,i));
-        if sumi == m %全白
-            whitestart = whitestart+1;
-        else
-            numstart = numstart+1;
-        end
-        
-        if numstart >0 && sumi == m %数字右边界
-            output{nn} = ones(m,i);
-            siglenum = ones(m,i);
-            singlenum=numarea(1:m,i-numstart-1:i);
-            singlenum=imopen(singlenum,singlese);
-            output{nn}= singlenum%腐蚀单个数字
-            subplot(2,5,nn);
-            imshow(output{nn});
-            %figure,imshow(output{nn});
-            filename=['numoutput\',num2str(nn),'.bmp'];
-            %imwrite(output{nn},filename);%输出
-            imwrite(output{nn}, filename, 'bmp');
-            whitestart=0;
-            numstart=0;
-            begin=i+1;
-            break;%完成一个数字 跳出
+bw = edge(BW2,'sobel','horizontal');
+[m,n]=size(bw);
+S=round(sqrt(m^2 + n^2));%S可以去到的最大值
+ma = 180;
+md = S;
+r=zeros(md,ma);
+for i=1:m
+    for j=1:n
+        if bw(i,j)==1
+            for k=1:ma
+                ru=round(abs(i*cos(k*3.14/180) + j*sin(k*3.14/180)));
+                r(ru+1,k)=r(ru+1,k)+1; %用来记录交点数值和角度
+            end
         end
     end
 end
-        
-    
-        
-        
-        
-        
-        
-        
+[m,n]=size(r);
+for i=1:m
+    for j=1:n
+        if r(i,j)>r(1,1)
+            r(1,1) = r(i,j);
+            c=j;             %得到最大值的交点 的角度值
+        end
+    end
+end
+if c<=90
+    rot=-c;
+else
+    rot=180-c;
+end
+robw=imrotate(I,rot,'crop');
+figure,imshow(robw);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% figure,imshow(I)
+% for i = 1:3
+%     I(:,:,i)=medfilt2(I(:,:,i),[3 3]);
+% end
+% hv = rgb2hsv(I);
+% S=hv(:,:,3);
+% [m n]=size(S);
+% for i = 1:m
+%     for j = 1:n
+%         S(i,j) = S(i,j)*5;%提高亮度
+%     end
+% end
+% figure,imshow(S);
+% hv(:,:,3)=S;
+% enhans = hsv2rgb(hv);%取红色通道
+% figure,imshow(enhans(:,:,3));
+% enhans(:,:,1)=enhans(:,:,3);enhans(:,:,2)=enhans(:,:,3);
+% Rcard = rgb2gray(enhans);
+% I2=im2bw(Rcard,0.6);
+% figure,imshow(I2);%阈值
+% 
+% binaryImage = edge(I2,'canny'); % 'Canny' edge detector
+% figure,imshow(binaryImage);%阈值
+
