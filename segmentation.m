@@ -1,5 +1,5 @@
 clear all;close all
-I = imread('card\card2r.jpg');%ԭͼ
+I = imread('card\card7r.jpg');%ԭͼ
 I = rgb2gray(I);
 figure,imshow(I)
 I2 = imadjust(I, [0 0.8], [0 1]); 
