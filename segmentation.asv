@@ -1,5 +1,5 @@
 clear all;close all
-Ic = imread('card\card5.jpg');%ԭͼ
+Ic = imread('card\card9tt.jpg');%ԭͼ
 I = rgb2gray(Ic);
 [size_y size_x] = size(I);
 figure,imshow(I)
@@ -168,7 +168,7 @@ for i=-1:1
 end
 figure,imshow(roc);
 
-
+tform=maketform('projective',[0 0;n 0;n m;0 m],[a b;c d;e f;g h]);
 
         
 
