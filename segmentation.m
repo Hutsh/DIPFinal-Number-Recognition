@@ -168,7 +168,10 @@ for i=-1:1
 end
 figure,imshow(roc);
 
+fixedpoints=[crop_lt_x crop_lt_y;crop_rt_x crop_rt_y;crop_lb_x crop_lb_y;crop_rb_x crop_rb_y];
+movingpoints=[0 0;size_x 0;0 size_y;size_x size_y];
 
+tform = fitgeotrans(movingpoints,fixedpoints,'Projective');
 
         
 
