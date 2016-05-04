@@ -1,5 +1,5 @@
 clear all;close all
-Ic = imread('card\card2r2.jpg');%原图
+Ic = imread('card\card2.jpg');%原图
 I = rgb2gray(Ic);
 [size_y size_x] = size(I);
 % figure,imshow(I)
@@ -21,7 +21,6 @@ BW2= imfill(BW,'holes');
 % binaryImage = bwmorph(binaryImage,'thicken'); % A morphological operation for edge linking
 % figure,imshow(binaryImage)
 
-%%%%%%%%%%%%%%%%%%%%%倾斜矫正↓%%%%%%%%%%%%%%%%%%%%%%%
 bw = edge(BW2,'sobel','horizontal');
 [m,n]=size(bw);
 S=round(sqrt(m^2 + n^2));%S可以去到的最大值
@@ -56,7 +55,6 @@ robw=imrotate(BW2,rot,'crop');
 roc =imrotate(Ic,rot,'crop');
 figure,imshow(robw);
 
-%%%%%%%%%%%%%%%%%%%%%倾斜矫正↑%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%左上到右下%%%%%%%%%%%%%5
 ltok=0;rbok=0;%坐上
 for n = 2:min(size_x,size_y)%第N条
@@ -184,12 +182,12 @@ figure,imshow(cropimg);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%预处理完成↑
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%提取单个学号↓
-cropc=imcrop(cropimg,[size_x*10/100 size_y*30/100 size_x*40/100 size_y*35/100]);
+cropc=imcrop(cropimg,[size_x*15/100 size_y*30/100 size_x*40/100 size_y*35/100]);
 figure,imshow(cropc);
 Gcropimg = rgb2gray(cropc);
 [size_y size_x] = size(Gcropimg);
 IR=cropc(:,:,3);%取红色通道，蓝色最浅
-% figure,imshow(IR);
+figure,imshow(IR);
 IR2 = imadjust(IR, [0 0.75], [0 1]); 
 figure,imshow(IR2);
 level=graythresh(IR2);
@@ -197,14 +195,14 @@ numg = IR2;
 IR2=~im2bw(IR2,0.1);
 IR3=medfilt2(IR2,[3,3]);  %2*2中值滤波.
 IR3=medfilt2(IR3,[3,3]);  %2*2中值滤波
-% figure,imshow(IR3)
+figure,imshow(IR3)
 
 se = strel('rectangle',[floor((size_x*40/100)/20) floor((size_y*35/100)/3)]);  %进行膨胀，使图像形成几个连通域
 bw2= imdilate(IR3,se);
-% figure,imshow(bw2)
+figure,imshow(bw2)
 
 bw2=imfill(bw2,'holes');
-% figure,imshow(bw2)
+figure,imshow(bw2)
 
 
 [B,L] = bwboundaries(bw2,4); 
@@ -236,47 +234,12 @@ for i = min_x:max_x
     end
 end
 numg = imcrop(numg, [min_x-2 min_y max_x-min_x+4 max_y-min_y]);%切割出学号
-% figure,imshow(numg)%学号区域
+figure,imshow(numg)%学号区域
 level=graythresh(numg);
 numg = im2bw(numg,level);
 figure,imshow(numg);
 
-[m n] = size(numg);
-output = cell(10,1);%建立输出结构体
-begin=1;
-whitestart=0;%每列全白色计数
-numstart=0;%有信息的列计数
-figure
-singlese = strel('disk',1);%腐蚀结果
-for nn=1:10%第几个数
-    for i = begin:n %
-        sumi = sum(numg(:,i));
-        if sumi == m %全白
-            whitestart = whitestart+1;
-        else
-            numstart = numstart+1;
-        end
-        
-        if numstart >0 && sumi == m %数字右边界
-            output{nn} = ones(m,i);
-            siglenum = ones(m,i);
-            singlenum=numg(1:m,i-numstart-1:i);
-            singlenum=imopen(singlenum,singlese);
-            output{nn}= singlenum%腐蚀单个数字
-            subplot(2,5,nn);
-            imshow(output{nn});
-            %figure,imshow(output{nn});
-            filename=['numoutput\',num2str(nn),'.bmp'];
-            %imwrite(output{nn},filename);%输出
-            imwrite(output{nn}, filename, 'bmp');
-            whitestart=0;
-            numstart=0;
-            begin=i+1;
-            break;%完成一个数字 跳出
-        end
-    end
-end
-        
+
 
 
 
