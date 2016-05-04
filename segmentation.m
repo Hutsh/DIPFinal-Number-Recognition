@@ -1,5 +1,5 @@
 clear all;close all
-Ic = imread('card\card2r2.jpg');%原图
+Ic = imread('card\card11.jpg');%原图
 I = rgb2gray(Ic);
 [size_y size_x] = size(I);
 % figure,imshow(I)
@@ -181,30 +181,32 @@ crop_rb_y = round(rb_y+(height_r-(rb_y-rt_y))/2);
 
 cropimg = imcrop(roc,[crop_lt_x crop_lt_y min(crop_rb_x-crop_lb_x,crop_rt_x-crop_lt_x) min(crop_rb_y-crop_rt_y,crop_lb_y-crop_lt_y)]);
 figure,imshow(cropimg);
+[size_y size_x] = size(cropimg(:,:,1));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%预处理完成↑
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%提取单个学号↓
-cropc=imcrop(cropimg,[size_x*10/100 size_y*30/100 size_x*40/100 size_y*35/100]);
+cropc=imcrop(cropimg,[size_x*10/100 size_y*35/100 size_x*45/100 size_y*45/100]);
 figure,imshow(cropc);
 Gcropimg = rgb2gray(cropc);
 [size_y size_x] = size(Gcropimg);
 IR=cropc(:,:,3);%取红色通道，蓝色最浅
-% figure,imshow(IR);
+figure,imshow(IR);
 IR2 = imadjust(IR, [0 0.75], [0 1]); 
 figure,imshow(IR2);
 level=graythresh(IR2);
 numg = IR2;
 IR2=~im2bw(IR2,0.1);
-IR3=medfilt2(IR2,[3,3]);  %2*2中值滤波.
-IR3=medfilt2(IR3,[3,3]);  %2*2中值滤波
-% figure,imshow(IR3)
+figure,imshow(IR2)
+IR3=medfilt2(IR2,[3,3]);  %3*3中值滤波.
+IR3=medfilt2(IR3,[3,3]);  %3*3中值滤波
+figure,imshow(IR3)
 
 se = strel('rectangle',[floor((size_x*40/100)/20) floor((size_y*35/100)/3)]);  %进行膨胀，使图像形成几个连通域
 bw2= imdilate(IR3,se);
 % figure,imshow(bw2)
 
 bw2=imfill(bw2,'holes');
-% figure,imshow(bw2)
+figure,imshow(bw2)
 
 
 [B,L] = bwboundaries(bw2,4); 
@@ -239,7 +241,19 @@ numg = imcrop(numg, [min_x-2 min_y max_x-min_x+4 max_y-min_y]);%切割出学号
 % figure,imshow(numg)%学号区域
 level=graythresh(numg);
 numg = im2bw(numg,level);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 figure,imshow(numg);
+numg=~numg;
+se = strel('disk',1);%腐蚀结果
+% numg=filter2(fspecial('average',3),numg);
+% numg=im2bw(numg);
+numg=imopen(numg,se);
+numg=bwmorph(numg,'majority');
+figure,imshow(numg);
+numg=~numg;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 [m n] = size(numg);
 output = cell(10,1);%建立输出结构体
@@ -261,7 +275,12 @@ for nn=1:10%第几个数
             output{nn} = ones(m,i);
             siglenum = ones(m,i);
             singlenum=numg(1:m,i-numstart-1:i);
-            singlenum=imopen(singlenum,singlese);
+            %%%%%%%%%%%%%%%%%%%%%%
+            %singlenum=filter2(fspecial('average',2),singlenum);
+            %singlenum=medfilt2(singlenum,[2,2]);  %7*7中值滤波
+            %singlenum=bwmorph(singlenum,'spur',50);
+            %singlenum=imclose(singlenum,singlese);
+            %%%%%%%%%%%%%%%%%%%%%%
             output{nn}= singlenum%腐蚀单个数字
             subplot(2,5,nn);
             imshow(output{nn});
