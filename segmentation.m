@@ -1,5 +1,5 @@
 clear all;close all
-Ic = imread('card\card11.jpg');%原图
+Ic = imread('card\card13.jpg');%原图
 I = rgb2gray(Ic);
 [size_y size_x] = size(I);
 % figure,imshow(I)
@@ -203,7 +203,7 @@ figure,imshow(IR3)
 
 se = strel('rectangle',[floor((size_x*40/100)/20) floor((size_y*35/100)/3)]);  %进行膨胀，使图像形成几个连通域
 bw2= imdilate(IR3,se);
-% figure,imshow(bw2)
+figure,imshow(bw2)
 
 bw2=imfill(bw2,'holes');
 figure,imshow(bw2)
@@ -219,12 +219,12 @@ end
 
 X = B(2);%B2为学号区域边界坐标
 [n m] = size(X{1,1});
-% for i = 1:n
-%     xx=X{1,1}(i,2);
-%     yy=X{1,1}(i,1);
-%     numarea(yy,xx)=1;%圈出学号
-% end
-% figure,imshow(numarea)
+for i = 1:n
+    xx=X{1,1}(i,2);
+    yy=X{1,1}(i,1);
+    numarea(yy,xx)=1;%圈出学号
+end
+figure,imshow(numarea)
 min_x = min(X{1,1}(:,2));max_x =max(X{1,1}(:,2));
 min_y = min(X{1,1}(:,1));max_y =max(X{1,1}(:,1));
 lt = [min_x min_y]%学号左上坐标
